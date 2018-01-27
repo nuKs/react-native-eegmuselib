@@ -1,0 +1,21 @@
+PODS:
+  - libmuse (6.0.8)
+
+DEPENDENCIES:
+  - libmuse (from `https://github.com/nuks/podspec-libmuse.git`)
+
+EXTERNAL SOURCES:
+  libmuse:
+    :git: https://github.com/nuks/podspec-libmuse.git
+
+CHECKOUT OPTIONS:
+  libmuse:
+    :commit: 084efcfd03ca3e5946441fea8cfc1327fd261752
+    :git: https://github.com/nuks/podspec-libmuse.git
+
+SPEC CHECKSUMS:
+  libmuse: 2a00330d1c4b126381bf42845cbf64ce3020350d
+
+PODFILE CHECKSUM: 797cce9ffa59eb409d4f35bcaf1705f998d761a3
+
+COCOAPODS: 1.4.0

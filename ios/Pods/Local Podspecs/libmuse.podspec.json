@@ -1,0 +1,32 @@
+{
+  "name": "libmuse",
+  "version": "6.0.8",
+  "summary": "libmuse is a library for interfacing with Muse headbands.",
+  "description": "libmuse is a library for interfacing with Muse headbands, including finding paired Muses, connecting to them, reading their state, and receiving packets for raw EEG data and all other values. You can use it in your own applications, subject to the terms of our license. The library consists of two parts: a core in C++ and a platform-specific interface in Objective-C for iOS.",
+  "homepage": "http://developer.choosemuse.com",
+  "license": {
+    "file": "LICENSE",
+    "type": "Copyright"
+  },
+  "authors": "InteraXon",
+  "social_media_url": "https://twitter.com/InteraXon",
+  "source": {
+    "git": "https://github.com/nuks/podspec-libmuse.git",
+    "tag": "6.0.8"
+  },
+  "platforms": {
+    "ios": "10.3"
+  },
+  "ios": {
+    "frameworks": [
+      "CoreBluetooth",
+      "ExternalAccessory"
+    ],
+    "vendored_frameworks": "Muse.framework",
+    "source_files": "Muse.framework/Headers/*.h",
+    "public_header_files": "Muse.framework/Headers/*.h"
+  },
+  "xcconfig": {
+    "OTHER_LDFLAGS": "-lc++"
+  }
+}

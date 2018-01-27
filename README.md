@@ -46,6 +46,9 @@ prone to change than the libraries in the future.
 
 ### Mostly automatic installation
 
+You must install Cocoapods and create an empty Podfile in your ios folder. Once
+it's done, you can type the following command:
+
 `$ react-native link react-native-eegmuselib`
 
 

@@ -38,12 +38,10 @@
 @interface RNEegMuseLib : NSObject <RCTBridgeModule>
 //RCTEventEmitter
 
-/*
 - (id) init;
 
 @property (nonatomic) NSMutableDictionary* _allMuses;
 @property (nonatomic) NSMutableDictionary* _connectedMuses;
-*/
 
 /* Global Listeners */
 

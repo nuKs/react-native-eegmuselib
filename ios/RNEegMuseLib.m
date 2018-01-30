@@ -1,4 +1,5 @@
 #import <Muse/Muse.h>
+#import <NSArray+F.h>
 #import "RNEegMuseLib.h"
 
 #if __has_include("RCTLog.h")
@@ -7,17 +8,35 @@
 #import <React/RCTLog.h>
 #endif
 
-@implementation RNEegMuseLib
+@interface RNEegMuseLib () <IXNMuseListener, IXNMuseConnectionListener,
+                            IXNMuseDataListener> // <CBCentralManagerDelegate>
 
-RCT_EXPORT_MODULE()
+@property IXNMuseManagerIos*  museManager;
+// @property (weak, nonatomic) IXNMuse * muse;
+// @property (nonatomic) NSMutableArray* logLines;
+// @property (nonatomic) BOOL lastBlink;
+// @property (nonatomic, strong) CBCentralManager * btManager;
+// @property (atomic) BOOL btState;
+
+@property (nonatomic) NSDictionary* muselist;
+@end
+
+@implementation RNEegMuseLib
 
 - (id) init
 {
     self = [super init];
     
     if (self) {
-//        self._allMuses = nil;
-//        self._connectedMuses = nil;
+        // Retrieve muse manager singleton
+        self.museManager = [IXNMuseManagerIos sharedManager];
+        
+        // Subscribe to museListChanged
+        [self.museManager setMuseListener:self];
+        
+        //
+//        self.btManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil options:nil];
+//        self.btState = FALSE;
         
         RCTLogInfo(@"My super first Init :)");
     }
@@ -31,15 +50,283 @@ RCT_EXPORT_MODULE()
     return dispatch_get_main_queue();
 }
 
+- (NSArray<NSString*>*) supportedEvents
+{
+    return @[@"muselistChanged", @"museConnectionStateChanged", @"museDataReceived"];
+}
+
+
+// - (void)receiveMuseArtifactPacket:(nonnull IXNMuseArtifactPacket *)packet muse:(nullable IXNMuse *)muse {
+    
+// }
+
+// - (void)receiveMuseDataPacket:(nullable IXNMuseDataPacket *)packet muse:(nullable IXNMuse *)muse {
+    
+// }
+
 // Export constants to javascript
 - (NSDictionary *) constantsToExport
 {
     return @{ @"FrameworkVersion": @"6.0.8" };
 }
 
-RCT_EXPORT_METHOD(addEvent: (NSString *)name location: (NSString *)location)
+- (void) startObserving
 {
-    RCTLogInfo(@"Pretending to create an event %@ at %@", name, location);
+    //    for (NSString *event in [self supportedEvents]) {
+    //        [[NSNotificationCenter defaultCenter] addObserver:self
+    //                                                 selector:@selector(handleNotification:)
+    //                                                     name:event
+    //                                                   object:nil];
+    //    }
 }
+
+- (void) stopObserving
+{
+    //    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+
+/* Methods */
+
+- (IXNMuse*) _getMuse: (NSString*)macAddress
+{
+    NSArray* muses = [self.museManager getMuses];
+
+    // Return object if found.
+    for (IXNMuse* muse in muses) {
+      if ([[muse getMacAddress] isEqualToString: macAddress]) {
+        return muse;
+      }
+    }
+    
+    // Return nil if not found.
+    return nil;
+}
+
+/* Global Listeners */
+
+// Muse list
+- (void) museListChanged // observer implemented from IXNMuseListener
+{
+    RCTLogInfo(@"Received: museListChanged");
+    NSArray* muses = [self.museManager getMuses];
+    
+    // Regenerate muselist with new data
+    NSDictionary* processedMuselist = [NSDictionary
+        dictionaryWithObjects: [muses map:^NSDictionary*(IXNMuse *muse) {
+            RCTLogInfo(@"Muse: %@ at %@", [muse getMacAddress], [muse getName]);
+        	return @{
+                 @"macAddress": [muse getMacAddress],
+                 @"name": [muse getName]
+        	};
+    	}]
+        forKeys: [muses map:^NSString*(IXNMuse *muse) {
+        	return [muse getMacAddress];
+    	}]
+    ];
+    
+    // Update list property
+    [self setMuselist: processedMuselist];
+    
+    // Send event to JS
+    // @todo ? check there is JS observer using startObserver method ?
+    [self sendEventWithName:@"muselistChanged" body:@{@"muselist": [self muselist]}];
+    RCTLogInfo(@"Sent: muselistChanged");
+}
+
+RCT_EXPORT_METHOD(subscribeMuselistChanged)
+{
+    RCTLogInfo(@"Subscribe: muselistChanged");
+    [self.museManager startListening];
+    [self museListChanged];
+}
+RCT_EXPORT_METHOD(unsubscribeMuselistChanged)
+{
+    RCTLogInfo(@"Unsubscribe: muselistChanged");
+    [self.museManager stopListening];
+    [self museListChanged];
+}
+RCT_REMAP_METHOD(getMuselist,
+                 muselistWithResolver: (RCTPromiseResolveBlock)resolve
+                 withRejecter: (RCTPromiseRejectBlock)reject)
+{
+    NSDictionary* muselist = [self muselist];
+    resolve(muselist);
+}
+
+
+// Muse connection state
+RCT_EXPORT_METHOD(connectMuse: (NSString*)macAddress)
+{
+    // Get muse
+    RCTLogInfo(@"Connect: muse (attempt)");
+    IXNMuse* muse = [self _getMuse: macAddress];
+
+    // If muse not found
+    if (muse == nil) {
+        // @todo throw error
+    }
+    // If muse found
+    else {
+        RCTLogInfo(@"Connect: muse");
+
+        // @todo prevent multiple connection to the same muse
+        // @todo rely on `subscribeMuseConnectionStateChanged` instead
+        [muse registerConnectionListener: self];
+        // [muse registerDataListener: self
+        //       type: IXNMuseDataPacketTypeArtifacts];
+        [muse registerDataListener: self
+              type: IXNMuseDataPacketTypeAlphaAbsolute];
+        // [muse registerDataListener: self
+        //       type: IXNMuseDataPacketTypeBetaAbsolute];
+        // [muse registerDataListener: self
+        //       type: IXNMuseDataPacketTypeDeltaAbsolute];
+        // [muse registerDataListener: self
+        //       type: IXNMuseDataPacketTypeThetaAbsolute];
+        // [muse registerDataListener: self
+        //       type: IXNMuseDataPacketTypeGammaAbsolute];
+        // [muse registerDataListener: self
+        //       type: IXNMuseDataPacketTypeEeg];
+
+        // packet type: see http://ios.choosemuse.com/_i_x_n_muse_data_packet_type_8h.html#adc5312f54405294ac0fda06ba08b6ef5
+
+        // Connect to the muse & launch a non-blocking execution loop in 
+        // another thread that includes connection management.
+        // @warning
+        // must be called on the same thread that deliver notification (for now
+        // as stated in the api doc).
+        [muse runAsynchronously];
+    }
+}
+
+
+- (void) receiveMuseConnectionPacket:(nonnull IXNMuseConnectionPacket *)packet
+                                muse:(nullable IXNMuse *)muse // observer implemented from IXNMuseConnectionListener
+{
+    RCTLogInfo(@"Received: museConnectionPacket");
+
+    // Parse state
+    NSString *state;
+    switch (packet.currentConnectionState) {
+        case IXNConnectionStateDisconnected:
+            state = @"disconnected";
+            break;
+        case IXNConnectionStateConnected:
+            state = @"connected";
+            break;
+        case IXNConnectionStateConnecting:
+            state = @"connecting";
+            break;
+        case IXNConnectionStateNeedsUpdate: state = @"needs update"; break;
+        case IXNConnectionStateUnknown: state = @"unknown"; break;
+        default: NSAssert(NO, @"impossible connection state received");
+    }
+
+    // Sent event to JS
+    [self sendEventWithName:@"museConnectionStateChanged" body:@{
+        @"macAddress": [muse getMacAddress],
+        @"connectionState": state
+    }];
+    RCTLogInfo(@"Sent: museConnectionStateChanged");
+}
+
+RCT_REMAP_METHOD(subscribeMuseConnectionStateChanged,
+                 subscribeConnectionStateChangedForMuse:(NSString*)macAddress)
+{
+    // [self subscribeConnectionStateChangedForMuse: macAddress];
+}
+RCT_REMAP_METHOD(unsubscribeMuseConnectionStateChanged,
+                 unsubscribeConnectionStateChangedForMuse:(NSString*)macAddress)
+{
+    // [self unsubscribeConnectionStateChangedForMuse: macAddress];
+}
+RCT_REMAP_METHOD(getMuseConnectionState,
+                 connectionStateForMuse: (NSString*)macAddress
+                 withResolver: (RCTPromiseResolveBlock)resolve
+                 withRejecter: (RCTPromiseRejectBlock)reject)
+{
+    /*
+    NXIMuse muse = [[self muselist] getByKey: macAddress];
+    NSString* museConnectionState = [muse getConnectionState];
+    resolve(museConnectionState);
+    */
+}
+
+//    NSArray *events = ...
+//    if (events) {
+//        resolve(events);
+//    } else {
+//        NSError *error = ...
+//        reject(@"no_events", @"There were no events", error);
+//    }
+
+//
+//RCT_EXPORT_METHOD(addEvent: (NSString *)name location: (NSString *)location)
+//{
+//    RCTLogInfo(@"Pretending to create an event %@ at %@", name, location);
+//}
+
+
+// Muse data stream
+- (void) receiveMuseDataPacket:(IXNMuseDataPacket *)packet
+                          muse:(IXNMuse *)muse
+{
+    RCTLogInfo(@"Received: museDataPacketReceived");
+
+    // Convert type to string
+    NSString *type;
+    switch (packet.packetType) {
+        case IXNMuseDataPacketTypeAlphaAbsolute:
+            type = @"alphaAbsolute";
+            break;
+        case IXNMuseDataPacketTypeBetaAbsolute:
+            type = @"betaAbsolute";
+            break;
+        case IXNMuseDataPacketTypeDeltaAbsolute:
+            type = @"deltaAbsolute";
+            break;
+        case IXNMuseDataPacketTypeThetaAbsolute:
+            type = @"thetaAbsolute";
+            break;
+        case IXNMuseDataPacketTypeGammaAbsolute:
+            type = @"gammaAbsolute";
+            break;
+        default: 
+            type = @"unknown";
+            //NSAssert(NO, @"impossible connection state received");
+            break;
+    }
+
+    // Send event to JS
+    // see http://ios.choosemuse.com/_i_x_n_muse_data_packet_type_8h.html#adc5312f54405294ac0fda06ba08b6ef5
+    [self sendEventWithName:@"museDataReceived" body:@{
+        @"type": type,
+        @"timestamp": [NSString stringWithFormat:@"%lld", packet.timestamp], //int64
+        @"leftEar": packet.values[IXNEegEEG1],
+        @"leftForehead": packet.values[IXNEegEEG2],
+        @"rightForehead": packet.values[IXNEegEEG3],
+        @"rightEar": packet.values[IXNEegEEG4],
+        @"leftAuxiliary": packet.values[IXNEegAUXLEFT],
+        @"rightAuxiliary": packet.values[IXNEegAUXRIGHT]
+    }];
+    RCTLogInfo(@"Sent: museDataReceived");
+}
+
+- (void)receiveMuseArtifactPacket:(nonnull IXNMuseArtifactPacket *)packet muse:(nullable IXNMuse *)muse {
+    
+}
+
+
+// - (void) receiveMuseArtifactPacket:(IXNMuseArtifactPacket *)packet
+//                               muse:(IXNMuse *)muse
+// {
+//     if (packet.blink && packet.blink != self.lastBlink) {
+//         [self log:@"blink detected"];
+//     }
+//     self.lastBlink = packet.blink;
+// }
+
+
+RCT_EXPORT_MODULE()
 
 @end

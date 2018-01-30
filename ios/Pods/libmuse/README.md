@@ -14,7 +14,7 @@ Visit http://developer.choosemuse.com for additional information.
 Have questions? Visit [Muse Forum](http://forum.choosemuse.com/)
 
 
-Lib Version:
+**Lib Version:**
 
 - Muse.framework 6.0.8
 
@@ -24,17 +24,17 @@ Lib Version:
 Check [Ramon Arguello's pod](https://cocoapods.org/pods/libmuse) for an older
 version of the lib with higher compatibilty range.
 
-Muse Headband compatibility:
+**Muse Headband compatibility:**
 
-- [ ] Muse Headband 2014 *(unknown/untested compatibility)*
+- [x] Muse Headband 2014 **(untested)**
 - [x] Muse Headband 2016
 
-iOS version compatibility:
+**iOS version compatibility:**
 
 - [ ] 10.2 *(uncompatible framework build)*
 - [x] 10.3+
 
-Hardware compatibility [(source)](https://en.wikipedia.org/wiki/IOS_10):
+**Hardware compatibility [(source)](https://en.wikipedia.org/wiki/IOS_10):**
 
 - iPhone
   * [ ] iPhone 4 *(no BLE support)*
@@ -64,14 +64,13 @@ Hardware compatibility [(source)](https://en.wikipedia.org/wiki/IOS_10):
   * [x] iPad Mini 4
   * [x] iPad Pro
 
-Language compatibility:
+**Language compatibility:**
 
 - [ ] Swift *(unknown/untested - most likely compatible)*
 - [x] Objective C
 
 
 ## iOS
-
 
 ### Quick start
 
@@ -81,7 +80,7 @@ Install [CocoaPods](https://guides.cocoapods.org/using/getting-started.html)
 and add the following line to your project's Podfile:
 
 ```
-pod "libmuse"
+pod "libmuse", :git => "https://github.com/nuks/podspec-libmuse.git"
 ```
 
 Add a `#import "Muse.h"` line to your source where appropriate. If you're using

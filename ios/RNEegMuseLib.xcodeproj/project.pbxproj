@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		081BD2194E4D6D2AB734E80A /* Pods_RNEegMuseLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC22307CCF91A2EB25696FA /* Pods_RNEegMuseLib.framework */; };
 		B3E7B58A1CC2AC0600A0062D /* RNEegMuseLib.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNEegMuseLib.m */; };
 /* End PBXBuildFile section */
 
@@ -25,8 +24,8 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libRNEegMuseLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNEegMuseLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		4DC22307CCF91A2EB25696FA /* Pods_RNEegMuseLib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RNEegMuseLib.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C0422A7CA833AF6C45C2127 /* Pods-RNEegMuseLib.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNEegMuseLib.debug.xcconfig"; path = "Pods/Target Support Files/Pods-RNEegMuseLib/Pods-RNEegMuseLib.debug.xcconfig"; sourceTree = "<group>"; };
+		920A7E6A144C8228E464D3F6 /* libPods-RNEegMuseLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNEegMuseLib.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3E7B5881CC2AC0600A0062D /* RNEegMuseLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNEegMuseLib.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNEegMuseLib.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNEegMuseLib.m; sourceTree = "<group>"; };
 		EFF7181CDE3BBCEAA44E2D8D /* Pods-RNEegMuseLib.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNEegMuseLib.release.xcconfig"; path = "Pods/Target Support Files/Pods-RNEegMuseLib/Pods-RNEegMuseLib.release.xcconfig"; sourceTree = "<group>"; };
@@ -37,7 +36,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				081BD2194E4D6D2AB734E80A /* Pods_RNEegMuseLib.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,7 +73,7 @@
 		F778D81B2E1CC18A481ADC95 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4DC22307CCF91A2EB25696FA /* Pods_RNEegMuseLib.framework */,
+				920A7E6A144C8228E464D3F6 /* libPods-RNEegMuseLib.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -266,6 +264,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7C0422A7CA833AF6C45C2127 /* Pods-RNEegMuseLib.debug.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Pods/libmuse",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -286,6 +288,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EFF7181CDE3BBCEAA44E2D8D /* Pods-RNEegMuseLib.release.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Pods/libmuse",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,

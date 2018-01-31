@@ -23,6 +23,21 @@
 
 @implementation RNEegMuseLib
 
+// Singleton to solve crash
+// see https://github.com/facebook/react-native/issues/15421
+// 
+// @todo
+// clean the listener using stopObserving could fix this
+// probably some memory leaks to fix.
++ (id) allocWithZone:(NSZone *)zone {
+    static RNEegMuseLib *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [super allocWithZone:zone];
+    });
+    return sharedInstance;
+}
+
 - (id) init
 {
     self = [super init];
@@ -175,16 +190,16 @@ RCT_EXPORT_METHOD(connectMuse: (NSString*)macAddress)
         [muse registerConnectionListener: self];
         // [muse registerDataListener: self
         //       type: IXNMuseDataPacketTypeArtifacts];
-        [muse registerDataListener: self
-              type: IXNMuseDataPacketTypeAlphaAbsolute];
+        // [muse registerDataListener: self
+        //       type: IXNMuseDataPacketTypeAlphaAbsolute];
         // [muse registerDataListener: self
         //       type: IXNMuseDataPacketTypeBetaAbsolute];
         // [muse registerDataListener: self
         //       type: IXNMuseDataPacketTypeDeltaAbsolute];
         // [muse registerDataListener: self
         //       type: IXNMuseDataPacketTypeThetaAbsolute];
-        // [muse registerDataListener: self
-        //       type: IXNMuseDataPacketTypeGammaAbsolute];
+        [muse registerDataListener: self
+              type: IXNMuseDataPacketTypeGammaAbsolute];
         // [muse registerDataListener: self
         //       type: IXNMuseDataPacketTypeEeg];
 
@@ -263,7 +278,7 @@ RCT_REMAP_METHOD(getMuseConnectionState,
 //
 //RCT_EXPORT_METHOD(addEvent: (NSString *)name location: (NSString *)location)
 //{
-//    RCTLogInfo(@"Pretending to create an event %@ at %@", name, location);
+//   RCTL_ogInfo(@"Pretending to create an event %@ at %@", name, location);
 //}
 
 
@@ -271,7 +286,7 @@ RCT_REMAP_METHOD(getMuseConnectionState,
 - (void) receiveMuseDataPacket:(IXNMuseDataPacket *)packet
                           muse:(IXNMuse *)muse
 {
-    RCTLogInfo(@"Received: museDataPacketReceived");
+    // RCTLogInfo(@"Received: museDataPacketReceived");
 
     // Convert type to string
     NSString *type;
@@ -291,9 +306,14 @@ RCT_REMAP_METHOD(getMuseConnectionState,
         case IXNMuseDataPacketTypeGammaAbsolute:
             type = @"gammaAbsolute";
             break;
+        case IXNMuseDataPacketTypeEeg:
+            type = @"rawEeg";
+            break;
         default: 
             type = @"unknown";
+            RCTLogError(@"Unknown packet type");
             //NSAssert(NO, @"impossible connection state received");
+            return;
             break;
     }
 
@@ -302,14 +322,14 @@ RCT_REMAP_METHOD(getMuseConnectionState,
     [self sendEventWithName:@"museDataReceived" body:@{
         @"type": type,
         @"timestamp": [NSString stringWithFormat:@"%lld", packet.timestamp], //int64
-        @"leftEar": packet.values[IXNEegEEG1],
-        @"leftForehead": packet.values[IXNEegEEG2],
-        @"rightForehead": packet.values[IXNEegEEG3],
-        @"rightEar": packet.values[IXNEegEEG4],
-        @"leftAuxiliary": packet.values[IXNEegAUXLEFT],
-        @"rightAuxiliary": packet.values[IXNEegAUXRIGHT]
+        @"leftEar": (isnan([(NSNumber*)packet.values[IXNEegEEG1] doubleValue])) ? @(0) : packet.values[IXNEegEEG1],
+        @"leftForehead": (isnan([(NSNumber*)packet.values[IXNEegEEG2] doubleValue])) ? @(0) : packet.values[IXNEegEEG2],
+        @"rightForehead": (isnan([(NSNumber*)packet.values[IXNEegEEG3] doubleValue])) ? @(0) : packet.values[IXNEegEEG3],
+        @"rightEar": (isnan([(NSNumber*)packet.values[IXNEegEEG4] doubleValue])) ? @(0) : packet.values[IXNEegEEG4],
+        @"leftAuxiliary": (isnan([(NSNumber*)packet.values[IXNEegAUXLEFT] doubleValue]) == 1) ? @(0) : packet.values[IXNEegAUXLEFT],
+        @"rightAuxiliary": (isnan([(NSNumber*)packet.values[IXNEegAUXRIGHT] doubleValue]) == 1) ? @(0) : packet.values[IXNEegAUXRIGHT]
     }];
-    RCTLogInfo(@"Sent: museDataReceived");
+    // RCTLogInfo(@"Sent: museDataReceived");
 }
 
 - (void)receiveMuseArtifactPacket:(nonnull IXNMuseArtifactPacket *)packet muse:(nullable IXNMuse *)muse {

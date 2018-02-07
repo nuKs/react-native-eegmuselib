@@ -1,9 +1,9 @@
 
 # react-native-eegmuselib
 
-## General info
+** warning: discountinued project, we fork https://github.com/NeuroTechX/eeg-101 as a basis. **
 
-**@todo** answer https://github.com/NeuroTechX/eeg-101/issues/12#issuecomment-360995067 once stable
+## General info
 
 This is a minimalistic cross-plateform (both iOS & android) wrapper over the
 Muse Headband EEG's ios & android libraries for react-native.

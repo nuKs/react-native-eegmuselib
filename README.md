@@ -1,7 +1,8 @@
 
 # react-native-eegmuselib
 
-** warning: discountinued project, we fork https://github.com/NeuroTechX/eeg-101 as a basis. **
+**warning: discountinued project, we fork
+   https://github.com/NeuroTechX/eeg-101 as a basis. **
 
 ## General info
 

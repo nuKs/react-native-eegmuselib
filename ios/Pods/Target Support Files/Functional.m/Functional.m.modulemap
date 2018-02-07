@@ -1,0 +1,6 @@
+framework module Functional_m {
+  umbrella header "Functional.m-umbrella.h"
+
+  export *
+  module * { export * }
+}

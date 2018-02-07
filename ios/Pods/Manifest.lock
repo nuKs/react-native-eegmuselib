@@ -1,7 +1,9 @@
 PODS:
+  - Functional.m (1.0.0)
   - libmuse (6.0.8)
 
 DEPENDENCIES:
+  - Functional.m (~> 1.0)
   - libmuse (from `https://github.com/nuks/podspec-libmuse.git`)
 
 EXTERNAL SOURCES:
@@ -10,12 +12,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   libmuse:
-    :commit: 084efcfd03ca3e5946441fea8cfc1327fd261752
+    :commit: 5bd0278637cb6542942f009686c60c2d4037219c
     :git: https://github.com/nuks/podspec-libmuse.git
 
 SPEC CHECKSUMS:
+  Functional.m: 072ea6a57954f7792a3aaf19042ed6d3258e3026
   libmuse: 2a00330d1c4b126381bf42845cbf64ce3020350d
 
-PODFILE CHECKSUM: 797cce9ffa59eb409d4f35bcaf1705f998d761a3
+PODFILE CHECKSUM: 946ad51cc99d46b5b3ab4707fa2ba7f04035383b
 
 COCOAPODS: 1.4.0
